@@ -910,6 +910,11 @@ public class DistributedFileSystem extends FileSystem {
     return getDataNodeStats(DatanodeReportType.ALL);
   }
 
+  public void refreshTopology() throws IOException{
+	  dfs.refreshTopology();
+  }
+  
+  
   /** @return datanode statistics for the given type. */
   public DatanodeInfo[] getDataNodeStats(final DatanodeReportType type
       ) throws IOException {

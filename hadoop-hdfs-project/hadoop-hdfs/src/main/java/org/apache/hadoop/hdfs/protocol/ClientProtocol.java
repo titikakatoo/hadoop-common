@@ -648,6 +648,15 @@ public interface ClientProtocol {
    * Return live datanodes if type is LIVE; dead datanodes if type is DEAD;
    * otherwise all datanodes if type is ALL.
    */
+  
+  /**
+   * Rereads the topology script 
+   * and resets the network topology
+   * @throws IOException
+   */
+  @Idempotent
+  public void refreshTopology() throws IOException; 
+
   @Idempotent
   public DatanodeInfo[] getDatanodeReport(HdfsConstants.DatanodeReportType type)
       throws IOException;

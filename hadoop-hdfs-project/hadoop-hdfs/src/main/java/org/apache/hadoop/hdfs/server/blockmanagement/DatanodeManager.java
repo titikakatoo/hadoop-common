@@ -1236,6 +1236,31 @@ public class DatanodeManager {
     return dnId;
   }
 
+  
+    /**
+     * 
+     */
+    public void refreshTopology() {
+      if (dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) {
+        ((CachedDNSToSwitchMapping) dnsToSwitchMapping).reloadCachedMappings();
+
+  	    List<DatanodeDescriptor> results = getDatanodeListForReport(DatanodeReportType.ALL);
+	  	for(DatanodeDescriptor datanodedescriptor : results) {
+	  		getNetworkTopology().remove(datanodedescriptor);
+	  		datanodedescriptor.setNetworkLocation(
+	                resolveNetworkLocationWithFallBackToDefaultLocation(datanodedescriptor));
+	  		getNetworkTopology().add(datanodedescriptor);
+	  	}
+
+      } else {
+        LOG.warn("refreshTopology is only support on " + 
+        "CachedDNSToSwitchMapping currently");
+      }
+    }  
+  
+  
+  
+  
   /** For generating datanode reports */
   public List<DatanodeDescriptor> getDatanodeListForReport(
       final DatanodeReportType type) {

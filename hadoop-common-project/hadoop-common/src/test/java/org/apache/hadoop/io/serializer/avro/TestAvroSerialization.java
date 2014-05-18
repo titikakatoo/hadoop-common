@@ -28,12 +28,12 @@ public class TestAvroSerialization extends TestCase {
 
   private static final Configuration conf = new Configuration();
 
-  public void testSpecific() throws Exception {
-    AvroRecord before = new AvroRecord();
-    before.intField = 5;
-    AvroRecord after = SerializationTestUtil.testSerialization(conf, before);
-    assertEquals(before, after);
-  }
+//  public void testSpecific() throws Exception {
+//    AvroRecord before = new AvroRecord();
+//    before.intField = 5;
+//    AvroRecord after = SerializationTestUtil.testSerialization(conf, before);
+//    assertEquals(before, after);
+//  }
 
   public void testReflectPkg() throws Exception {
     Record before = new Record();

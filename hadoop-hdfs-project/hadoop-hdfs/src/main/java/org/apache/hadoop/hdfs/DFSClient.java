@@ -2199,6 +2199,20 @@ public class DFSClient implements java.io.Closeable, RemotePeerFactory {
     return namenode.listCorruptFileBlocks(path, cookie);
   }
 
+  
+  /**
+   * Reload the script based topology configuration
+   * and reset the network topology
+   * See {@link ClientProtocol#refreshTopology()} 
+   * for more details.
+   * 
+   * @see ClientProtocol#refreshTopology()
+   */
+  public void refreshTopology() throws IOException{
+	  namenode.refreshTopology();
+  }
+  
+  
   public DatanodeInfo[] datanodeReport(DatanodeReportType type)
   throws IOException {
     return namenode.getDatanodeReport(type);

@@ -688,6 +688,7 @@ public class DFSAdmin extends FsShell {
       "\t[-refreshUserToGroupsMappings]\n" +
       "\t[-refreshSuperUserGroupsConfiguration]\n" +
       "\t[-refreshCallQueue]\n" +
+      "\t[-refreshTopology]\n" +
       "\t[-printTopology]\n" +
       "\t[-refreshNamenodes datanodehost:port]\n"+
       "\t[-deleteBlockPool datanodehost:port blockpoolId [force]]\n"+
@@ -763,6 +764,9 @@ public class DFSAdmin extends FsShell {
       "-refreshSuperUserGroupsConfiguration: Refresh superuser proxy groups mappings\n";
 
     String refreshCallQueue = "-refreshCallQueue: Reload the call queue from config\n";
+    
+    String refreshTopology = "-refreshTopology: Reread the topology script and\n" +
+    		"\t\reset the networktopology\n";
 
     String printTopology = "-printTopology: Print a tree of the racks and their\n" +
                            "\t\tnodes as reported by the Namenode\n";
@@ -848,6 +852,8 @@ public class DFSAdmin extends FsShell {
       System.out.println(refreshSuperUserGroupsConfiguration);
     } else if ("refreshCallQueue".equals(cmd)) {
       System.out.println(refreshCallQueue);
+    } else if ("refreshTopology".equals(cmd)) {
+   	  System.out.println(refreshTopology); 
     } else if ("printTopology".equals(cmd)) {
       System.out.println(printTopology);
     } else if ("refreshNamenodes".equals(cmd)) {
@@ -887,6 +893,7 @@ public class DFSAdmin extends FsShell {
       System.out.println(refreshUserToGroupsMappings);
       System.out.println(refreshSuperUserGroupsConfiguration);
       System.out.println(refreshCallQueue);
+      System.out.println(refreshTopology);
       System.out.println(printTopology);
       System.out.println(refreshNamenodes);
       System.out.println(deleteBlockPool);
@@ -950,6 +957,23 @@ public class DFSAdmin extends FsShell {
     return 0;
   }
 
+  
+  
+  
+  
+  /**
+   * Re-read the network topology script and
+   * reset the networktopology.
+   */
+  
+  public int refreshTopology() throws IOException{
+	  int exitcode = -1;
+	  DistributedFileSystem dfs = getDFS();
+	  dfs.refreshTopology();
+	  exitcode = 0;
+	  return exitcode;
+  }
+  
   /**
    * Display each rack and the nodes assigned to that rack, as determined
    * by the NameNode, in a hierarchical manner.  The nodes and racks are
@@ -1165,6 +1189,9 @@ public class DFSAdmin extends FsShell {
     } else if ("-printTopology".equals(cmd)) {
       System.err.println("Usage: java DFSAdmin"
                          + " [-printTopology]");
+    } else if ("-refreshTopology".equals(cmd)) {
+      System.err.println("Usage: java DFSAdmin"
+                           + " [-refreshTopology]");
     } else if ("-refreshNamenodes".equals(cmd)) {
       System.err.println("Usage: java DFSAdmin"
                          + " [-refreshNamenodes datanode-host:port]");
@@ -1195,6 +1222,7 @@ public class DFSAdmin extends FsShell {
       System.err.println("           [-refreshUserToGroupsMappings]");
       System.err.println("           [-refreshSuperUserGroupsConfiguration]");
       System.err.println("           [-refreshCallQueue]");
+      System.err.println("           [-refreshTopology]");
       System.err.println("           [-printTopology]");
       System.err.println("           [-refreshNamenodes datanodehost:port]");
       System.err.println("           [-deleteBlockPool datanode-host:port blockpoolId [force]]");
@@ -1296,7 +1324,12 @@ public class DFSAdmin extends FsShell {
       if (argv.length != 1) {
         printUsage(cmd);
         return exitCode;
-      }
+      }      
+    } else if ("-refreshTopology".equals(cmd)) {
+        if(argv.length != 1) {
+          printUsage(cmd);
+          return exitCode;
+        }  
     } else if ("-printTopology".equals(cmd)) {
       if(argv.length != 1) {
         printUsage(cmd);
@@ -1387,6 +1420,8 @@ public class DFSAdmin extends FsShell {
         exitCode = refreshSuperUserGroupsConfiguration();
       } else if ("-refreshCallQueue".equals(cmd)) {
         exitCode = refreshCallQueue();
+      } else if ("-refreshTopology".equals(cmd)) {
+        exitCode = refreshTopology(); 
       } else if ("-printTopology".equals(cmd)) {
         exitCode = printTopology();
       } else if ("-refreshNamenodes".equals(cmd)) {
