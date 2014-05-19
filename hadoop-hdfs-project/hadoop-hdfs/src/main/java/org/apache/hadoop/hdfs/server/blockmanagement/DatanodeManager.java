@@ -1236,27 +1236,40 @@ public class DatanodeManager {
     return dnId;
   }
 
+   /**
+    * Add datanodes with updates network locations
+    * to the network topology.
+    * @param results
+    */
   
-    /**
-     * 
+	public void resetClusterMap(List<DatanodeDescriptor> results) {
+		for (DatanodeDescriptor datanodedescriptor : results) {
+			getNetworkTopology().add(datanodedescriptor);
+		}
+	}
+
+	/**
+     * Reread the script based mapping of hosts to network location,
+     * update the networkLocation of already registered datanodes
+     * and reset the clusterMap.
      */
-    public void refreshTopology() {
-      if (dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) {
-        ((CachedDNSToSwitchMapping) dnsToSwitchMapping).reloadCachedMappings();
+	public void refreshTopology() {
+		if (dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) {
+			((CachedDNSToSwitchMapping) dnsToSwitchMapping)
+					.reloadCachedMappings();
 
-  	    List<DatanodeDescriptor> results = getDatanodeListForReport(DatanodeReportType.ALL);
-	  	for(DatanodeDescriptor datanodedescriptor : results) {
-	  		getNetworkTopology().remove(datanodedescriptor);
-	  		datanodedescriptor.setNetworkLocation(
-	                resolveNetworkLocationWithFallBackToDefaultLocation(datanodedescriptor));
-	  		getNetworkTopology().add(datanodedescriptor);
-	  	}
-
-      } else {
-        LOG.warn("refreshTopology is only support on " + 
-        "CachedDNSToSwitchMapping currently");
-      }
-    }  
+			List<DatanodeDescriptor> results = getDatanodeListForReport(DatanodeReportType.ALL);
+			for (DatanodeDescriptor datanodedescriptor : results) {
+				getNetworkTopology().remove(datanodedescriptor);
+				datanodedescriptor
+						.setNetworkLocation(resolveNetworkLocationWithFallBackToDefaultLocation(datanodedescriptor));
+			}
+			resetClusterMap(results);
+		} else {
+			LOG.warn("refreshTopology is only support on "
+					+ "CachedDNSToSwitchMapping currently");
+		}
+	}
   
   
   
