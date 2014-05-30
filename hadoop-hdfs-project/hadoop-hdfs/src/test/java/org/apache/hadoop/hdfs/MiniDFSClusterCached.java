@@ -52,7 +52,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
-import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -96,6 +95,7 @@ import org.apache.hadoop.hdfs.server.protocol.DatanodeStorage;
 import org.apache.hadoop.hdfs.server.protocol.NamenodeProtocols;
 import org.apache.hadoop.hdfs.tools.DFSAdmin;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
+import org.apache.hadoop.net.CachedStaticMapping;
 import org.apache.hadoop.net.DNSToSwitchMapping;
 import org.apache.hadoop.net.NetUtils;
 import org.apache.hadoop.net.StaticMapping;
@@ -691,7 +691,7 @@ private Configuration conf;
     conf.setInt(DFS_NAMENODE_SAFEMODE_EXTENSION_KEY, safemodeExtension);
     conf.setInt(DFS_NAMENODE_DECOMMISSION_INTERVAL_KEY, 3); // 3 second
     conf.setClass(NET_TOPOLOGY_NODE_SWITCH_MAPPING_IMPL_KEY, 
-                   StaticMapping.class, DNSToSwitchMapping.class);
+                   CachedStaticMapping.class, DNSToSwitchMapping.class);
     
     // In an HA cluster, in order for the StandbyNode to perform checkpoints,
     // it needs to know the HTTP port of the Active. So, if ephemeral ports
@@ -1311,7 +1311,7 @@ private Configuration conf;
         String name = hosts[i - curDatanodesNum];
         LOG.info("Adding node with hostname : " + name + " to rack " +
                             racks[i-curDatanodesNum]);
-        StaticMapping.addNodeToRack(name,
+        CachedStaticMapping.RawStaticMapping.addNodeToRack(name,
                                     racks[i-curDatanodesNum]);
       }
       Configuration newconf = new HdfsConfiguration(dnConf); // save config
@@ -1329,6 +1329,7 @@ private Configuration conf;
       }
       DataNode dn = DataNode.instantiateDataNode(dnArgs, dnConf,
                                                  secureResources);
+    
       if(dn == null)
         throw new IOException("Cannot start DataNode in "
             + dnConf.get(DFS_DATANODE_DATA_DIR_KEY));
@@ -1339,7 +1340,7 @@ private Configuration conf;
       if (racks != null) {
         LOG.info("Adding node with service : " + service +
                             " to rack " + racks[i-curDatanodesNum]);
-        StaticMapping.addNodeToRack(service,
+        CachedStaticMapping.RawStaticMapping.addNodeToRack(service,
                                   racks[i-curDatanodesNum]);
       }
       dn.runDatanodeDaemon();

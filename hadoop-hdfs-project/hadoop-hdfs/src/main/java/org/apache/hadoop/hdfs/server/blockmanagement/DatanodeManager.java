@@ -663,9 +663,12 @@ public class DatanodeManager {
   private String resolveNetworkLocation (DatanodeID node) 
       throws UnresolvedTopologyException {
     List<String> names = new ArrayList<String>(1);
-    if (dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) {
+    if ((dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) && (dnsToSwitchMapping instanceof CachedStaticMapping)) {
+      names.add(node.getHostName());
+    } else if ((dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) && !(dnsToSwitchMapping instanceof CachedStaticMapping)){
       names.add(node.getIpAddr());
-    } else {
+    }
+    else {
       names.add(node.getHostName());
     }
     

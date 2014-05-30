@@ -102,6 +102,7 @@ public class CachedStaticMapping extends CachedDNSToSwitchMapping {
 					m.add(NetworkTopology.DEFAULT_RACK);
 				}
 			}
+
 			return m;
 		}
 

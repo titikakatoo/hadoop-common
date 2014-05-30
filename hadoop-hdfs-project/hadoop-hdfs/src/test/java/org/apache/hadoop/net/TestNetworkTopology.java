@@ -264,6 +264,8 @@ public class TestNetworkTopology {
 
       // Restart the DN with the invalid topology and wait for it to register.
       cluster.restartDataNode(invalidIdx);
+      
+      
       Thread.sleep(5000);
       while (true) {
         info = nn.getDatanodeReport(DatanodeReportType.LIVE);
@@ -286,9 +288,11 @@ public class TestNetworkTopology {
       }
     }
   }
+ 
+  
   
 	@Test(timeout = 180000)
-	public void testRefresTopology() throws Exception {
+	public void testRefreshTopology() throws Exception {
 		// start a cluster
 		Configuration conf = new HdfsConfiguration();
 		MiniDFSClusterCached cluster = null;
@@ -307,18 +311,22 @@ public class TestNetworkTopology {
 			//getting the list of registered datanodes
 			info = nn.getDatanodeReport(DatanodeReportType.LIVE);
 			
+			
 			//datanode 1 should have the network location /rack1
 			Assert.assertEquals("/rack1", info[0].getNetworkLocation());
 
 			//the network location of datanode 1 is updated to /rack2 from its original
 			//original location of /rack1
-			CachedStaticMapping.RawStaticMapping.addNodeToRack(hosts[0],
+			CachedStaticMapping.RawStaticMapping.addNodeToRack(info[0].getHostName(),
 					"/rack2");
 			//the network topology is updated by calling refreshTopology
 			DatanodeManager dm = cluster.getNamesystem().getBlockManager()
 					.getDatanodeManager();
 			dm.refreshTopology();
-			//the network location of datanode 1 should be /rack2 now
+			
+			info = nn.getDatanodeReport(DatanodeReportType.LIVE);
+
+//			//the network location of datanode 1 should be /rack2 now
 			Assert.assertEquals("/rack2", info[0].getNetworkLocation());
 
 		} finally {
