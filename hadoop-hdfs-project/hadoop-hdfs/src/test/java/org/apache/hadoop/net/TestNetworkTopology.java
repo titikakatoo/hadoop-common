@@ -32,9 +32,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DFSTestUtil;
 import org.apache.hadoop.hdfs.HdfsConfiguration;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
+import org.apache.hadoop.hdfs.MiniDFSClusterCached;
 import org.apache.hadoop.hdfs.protocol.DatanodeInfo;
 import org.apache.hadoop.hdfs.protocol.HdfsConstants.DatanodeReportType;
 import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeDescriptor;
+import org.apache.hadoop.hdfs.server.blockmanagement.DatanodeManager;
 import org.apache.hadoop.hdfs.server.protocol.NamenodeProtocols;
 import org.junit.Assert;
 import org.junit.Before;
@@ -284,5 +286,46 @@ public class TestNetworkTopology {
       }
     }
   }
+  
+	@Test(timeout = 180000)
+	public void testRefresTopology() throws Exception {
+		// start a cluster
+		Configuration conf = new HdfsConfiguration();
+		MiniDFSClusterCached cluster = null;
+		try {
+			//initializing a cluster
+			String racks[] = { "/rack1", "/rack1" };
+			String hosts[] = { "slave01", "slave02" };
+			cluster = new MiniDFSClusterCached.Builder(conf).numDataNodes(2)
+					.racks(racks).hosts(hosts).build();
+			cluster.waitActive();
 
+			NamenodeProtocols nn = cluster.getNameNodeRpc();
+			Assert.assertNotNull(nn);
+
+			DatanodeInfo[] info;
+			//getting the list of registered datanodes
+			info = nn.getDatanodeReport(DatanodeReportType.LIVE);
+			
+			//datanode 1 should have the network location /rack1
+			Assert.assertEquals("/rack1", info[0].getNetworkLocation());
+
+			//the network location of datanode 1 is updated to /rack2 from its original
+			//original location of /rack1
+			CachedStaticMapping.RawStaticMapping.addNodeToRack(hosts[0],
+					"/rack2");
+			//the network topology is updated by calling refreshTopology
+			DatanodeManager dm = cluster.getNamesystem().getBlockManager()
+					.getDatanodeManager();
+			dm.refreshTopology();
+			//the network location of datanode 1 should be /rack2 now
+			Assert.assertEquals("/rack2", info[0].getNetworkLocation());
+
+		} finally {
+			if (cluster != null) {
+				cluster.shutdown();
+			}
+		}
+	}
+  
 }

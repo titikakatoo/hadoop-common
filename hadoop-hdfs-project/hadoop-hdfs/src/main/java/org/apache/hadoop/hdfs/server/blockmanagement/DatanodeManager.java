@@ -1266,7 +1266,7 @@ public class DatanodeManager {
 			}
 			resetClusterMap(results);
 		} else {
-			LOG.warn("refreshTopology is only support on "
+			LOG.warn("refreshTopology is only supported on "
 					+ "CachedDNSToSwitchMapping currently");
 		}
 	}
