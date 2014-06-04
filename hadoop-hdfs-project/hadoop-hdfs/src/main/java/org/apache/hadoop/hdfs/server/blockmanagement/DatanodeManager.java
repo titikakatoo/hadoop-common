@@ -1257,6 +1257,7 @@ public class DatanodeManager {
      * and reset the clusterMap.
      */
 	public void refreshTopology() {
+		namesystem.writeLock();
 		if (dnsToSwitchMapping instanceof CachedDNSToSwitchMapping) {
 			((CachedDNSToSwitchMapping) dnsToSwitchMapping)
 					.reloadCachedMappings();
@@ -1272,6 +1273,7 @@ public class DatanodeManager {
 			LOG.warn("refreshTopology is only supported on "
 					+ "CachedDNSToSwitchMapping currently");
 		}
+		namesystem.writeUnlock();
 	}
   
   
